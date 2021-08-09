@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> Exploration of Michelin Stars </title>
+
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <script src="https://d3js.org/topojson.v3.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+</head>
+
+<body style="background-color: #990000">
+  <section id="section-0">
+    <h1> Exploration of Michelin Stars</h1>
+    <h3> This interactive
+      visualization shows the
+      geographic distribution of one, two, and
+      three star
+      Michelin restaurants across the globe (sans France and Japan). The scatter plot shows the breakdown of
+      cuisines among the Michelin-starred restaurants in a region, and the bar graph shows the pricing of
+      Michelin-starred
+      restaurants in a region. Click on a country to zoom in on its distribution of restaurants, and click the back
+      buttom
+      to zoom out.
+      Use the star filters to filter by number of stars.
+    </h3>
+    <div id="go-action">
+      <img id="go-action-icon" style="width: 20px; height: auto; margin-right: 10px" src="down-arrow.svg" />
+      <p id="go-action-text">go to visualization</p>
+    </div>
+  </section>
+
+  <section id="section-1">
+    <div id="back-button" class="hidden">back</div>
+
+    <svg style="background-color: white;" id="map" height="90vh" width="99vw"></svg>
+  </section>
+  <div id="controls">
+    <div id="checkbox-wrapper">
+      <p style="font-family: Arial, Helvetica, sans-serif; font-weight: bold; color: #990000;display: inline-block;">
+        Filter by number of stars: </p>
+
+      <label for="1"><img style="height: 40px; width: 40px;position: relative; left: 30px;" src="/one.png"
+          value="checked" /></label>
+      <input type="checkbox" style="position: relative; top: 15px;" id="1" checked />
+      <label for="2"><img style="height: 40px; width: 80px;position: relative; left: 60px;" src="/two.png" /></label>
+      <input type="checkbox" style="position: relative; top: 15px; left: 5px;" id="2" checked />
+      <label for="3"><img style="height: 40px; width: 120px;position: relative; left: 90px;" src="/three.png" /></label>
+      <input type="checkbox" style="position: relative; top: 15px; left: 20px;" id="3" checked />
+    </div>
+    <div id="more-details">more details</div>
+
+  </div>
+
+  <!--this should be fixed on screen, while sections move up and down-->
+  <section id="section-2">
+    <div id="scatter-wrapper">
+      <h1 style="color: white;" id="scatter-title">Cuisines in All Countries</h1>
+      <svg id="scatter" height="625" width="650"></svg>
+    </div>
+    <div id="bar-wrapper">
+      <h1 style="color: white;" id="bar-title">Prices for All Cuisines</h1>
+      <svg id="bar" height="625" width="650"></svg>
+    </div>
+  </section>
+
+  <script src="./script.js"></script>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      color: white;
+    }
+
+    section {
+      height: 100vh;
+    }
+
+    #section-0 {
+      display: flex;
+      flex-flow: column;
+      padding-left: 20vw;
+      padding-right: 20vw;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #section-0 h1 {
+      font-size: 56px;
+      margin-bottom: 5vh;
+    }
+
+    #section-0 h3 {
+      text-align: justify;
+      text-align-last: center;
+      line-height: 2em;
+    }
+
+    #go-action {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    #go-action-text {
+      white-space: nowrap;
+      width: 75px;
+      overflow: visible;
+      opacity: 0;
+    }
+
+    #go-action-icon {
+      margin-left: 75px;
+    }
+
+    @keyframes action-text-in {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 100;
+      }
+    }
+
+    @keyframes action-icon-in {
+      from {
+        transform: translateX(0px);
+      }
+
+      to {
+        transform: translateX(-75px);
+      }
+    }
+
+    #go-action:hover {
+      -webkit-animation: action-icon-in 1s ease-in-out forwards;
+      animation: action-icon-in 1s ease-in-out forwards;
+    }
+
+    #go-action-icon:hover~#go-action-text {
+      -webkit-animation: action-text-in 1s ease-in-out forwards;
+      animation: action-text-in 1s ease-in-out forwards;
+    }
+
+    #go-action-text:hover {
+      -webkit-animation: action-text-in 1s ease-in-out forwards;
+      animation: action-text-in 1s ease-in-out forwards;
+    }
+
+
+    .tick text {
+      fill: white;
+    }
+
+
+    #controls {
+      display: flex;
+      flex-flow: row;
+      align-items: center;
+      justify-content: space-around;
+      position: fixed;
+      padding: 10px;
+      background-color: #ffffffbf;
+      left: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 7vh;
+    }
+
+    #checkbox-wrapper {
+      display: checkbox;
+      align-items: center;
+      color: black;
+    }
+
+    #more-details {
+      font-family: Arial, Helvetica, sans-serif;
+      color: #990000;
+      font-weight: bold;
+      cursor: pointer;
+      visibility: hidden;
+      opacity: 0;
+    }
+
+    .active {
+      fill: #fed8b1;
+    }
+
+    #section-2 {
+      display: flex;
+      flex-flow: row;
+    }
+
+    .domain {
+      stroke: white;
+    }
+
+    .tick line {
+      stroke: white;
+    }
+
+    .axis {
+      stroke: white;
+    }
+
+    text {
+      fill: black;
+
+    }
+
+    .countries {
+      fill: #ffcccb;
+    }
+
+    #back-button {
+      position: relative;
+      width: 2em;
+      top: 4em;
+      left: 2em;
+      background-color: rgb(255, 255, 255, .5);
+      padding: .5em;
+      border-radius: .5em;
+      color: black;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .gridlines line {
+      stroke: #bbb;
+    }
+
+    .gridlines .domain {
+      stroke: none;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    g.mouseover rect {
+      fill: white;
+      stroke: #222;
+      stroke-width: 1px;
+    }
+
+    g.mouseover text {
+      font-family: Arial, sans-serif;
+    }
+
+    g.mouseover text:first-child {
+      font-weight: bold;
+    }
+
+    h1 {
+      text-align: center;
+    }
+  </style>
+</body>
+
+</html>
